@@ -3,6 +3,7 @@ package client;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import net.miginfocom.swing.MigLayout;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -13,11 +14,12 @@ import java.util.ArrayList;
 
 import javax.swing.border.BevelBorder;
 
+import util.ButtonAdapter;
 import util.network.ConnectionData;
 import util.network.Networked;
 import packets.*;
 
-public class Tron extends JFrame implements Networked{
+public class TronFrame extends JFrame implements Networked{
 	private static final long serialVersionUID = 1L;
 	private JPanel main;
 	private JPanel connect;
@@ -38,7 +40,7 @@ public class Tron extends JFrame implements Networked{
 	/**
 	 * Create the frame.
 	 */
-	public Tron( ConnectionData server, LoginBox b) {
+	public TronFrame( ConnectionData server, LoginBox b) {
 		super("Tron");
 		
 		this.server = server;
@@ -58,7 +60,7 @@ public class Tron extends JFrame implements Networked{
 		main = new JPanel();
 		main.setBackground(Color.BLACK);
 		main.setBorder(new EmptyBorder(0,0,0,0));
-		main.setLayout(new MigLayout("", "[grow]", "[200px:200px:200px][120px:120px:120px][120px:120px:120px][120px:120px:120px]"));
+		main.setLayout(new MigLayout("", "[grow]", "[200px:200px:200px][90px:90px:90px][90px:90px:90px][90px:90px:90px][90px:90px:90px]"));
 		setContentPane(main);
 		
 		connect = new JPanel();
@@ -74,7 +76,7 @@ public class Tron extends JFrame implements Networked{
 		stats = new JPanel();
 		stats.setBackground(Color.BLACK);
 		stats.setBorder(new EmptyBorder(0,0,0,0));
-		stats.setLayout(new MigLayout("", "[300px:300px:300px][300px:300px:300px]", "[200px:200px:200px][100px:100px:100px][25px:25px:25px][75px:75px:75px][25px:25px:25px][75px:75px:75px][60px:60px:60px]"));
+		stats.setLayout(new MigLayout("", "[300px:300px:300px,left][300px:300px:300px,right]", "[200px:200px:200px][100px:100px:100px][25px:25px:25px][75px:75px:75px][25px:25px:25px][75px:75px:75px][60px:60px:60px]"));
 		
 		//Set up logo for all three
 		main.add(new RequestPanel(this), "cell 0 0,alignx center,aligny center");
@@ -130,13 +132,14 @@ public class Tron extends JFrame implements Networked{
 		rating.setForeground(Color.WHITE);
 		stats.add(rating, "cell 1 5,alignx center,aligny center");
 		
-		JButton btn = new JButton("Play");
+		JButton btn = new JButton("Find Opponent");
 		btn.setFocusable(false);
 		btn.setMinimumSize(new Dimension(300, 75));
 		btn.setMaximumSize(new Dimension(300, 75));
-		btn.addMouseListener(new MouseAdapter(){
+		btn.addMouseListener(new ButtonAdapter(btn){
 			public void mousePressed(MouseEvent e){
 				setContentPane(connect);
+				button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_RELEASED, System.nanoTime(), 0, button.getX()+1, button.getY()+1, 1, true));
 				validate();
 				Thread h = new Thread(){
 					public void run(){
@@ -166,26 +169,43 @@ public class Tron extends JFrame implements Networked{
 		main.add(btn, "cell 0 1,alignx center,aligny center");
 		
 		btn = new JButton("Back");
-		btn.addMouseListener(new MouseAdapter(){
+		btn.addMouseListener(new ButtonAdapter(btn){
 			public void mousePressed(MouseEvent e){
 				setContentPane(options);
+				button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_RELEASED, System.nanoTime(), 0, button.getX()+1, button.getY()+1, 1, true));
 				validate();
 			}
 		});
 		stats.add(btn, "cell 0 6 2 1,grow");
 		
+		btn = new JButton("Local Game");
+		btn.setMinimumSize(new Dimension(300, 75));
+		btn.setMaximumSize(new Dimension(300, 75));
+		btn.setFocusable(false);
+		btn.addMouseListener(new ButtonAdapter(btn){
+			public void mousePressed(MouseEvent e){
+				OfflineGame g = new OfflineGame(getInstance());
+				button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_RELEASED, System.nanoTime(), 0, button.getX()+1, button.getY()+1, 1, true));
+				setContentPane(g);
+				g.start();
+				validate();
+			}
+		});
+		main.add(btn, "cell 0 2,alignx center,aligny center");
+		
 		btn = new JButton("Options");
 		btn.setFocusable(false);
 		btn.setMinimumSize(new Dimension(300, 75));
 		btn.setMaximumSize(new Dimension(300, 75));
-		btn.addMouseListener(new MouseAdapter(){
+		btn.addMouseListener(new ButtonAdapter(btn){
 			public void mousePressed(MouseEvent e){
 				setContentPane(options);
+				button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_RELEASED, System.nanoTime(), 0, button.getX()+1, button.getY()+1, 1, true));
 				validate();
 				repaint();
 			}
 		});
-		main.add(btn, "cell 0 2,alignx center,aligny center");
+		main.add(btn, "cell 0 3,alignx center,aligny center");
 		
 		btn = new JButton("Quit");
 		btn.setFocusable(false);
@@ -196,7 +216,7 @@ public class Tron extends JFrame implements Networked{
 				System.exit(0);
 			}
 		});
-		main.add(btn, "cell 0 3,alignx center,aligny center");
+		main.add(btn, "cell 0 4,alignx center,aligny center");
 		
 		
 		JScrollPane scrollPane = new JScrollPane();
@@ -236,9 +256,10 @@ public class Tron extends JFrame implements Networked{
 		btn.setFocusable(false);
 		btn.setMinimumSize(new Dimension(350, 40));
 		btn.setMaximumSize(new Dimension(350, 40));
-		btn.addMouseListener(new MouseAdapter(){
+		btn.addMouseListener(new ButtonAdapter(btn){
 			public void mousePressed(MouseEvent e){
 				setContentPane(main);
+				button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_RELEASED, System.nanoTime(), 0, button.getX()+1, button.getY()+1, 1, true));
 				validate();
 			}
 		});
@@ -273,15 +294,20 @@ public class Tron extends JFrame implements Networked{
 		btn.setFocusable(false);
 		btn.setMinimumSize(new Dimension(300, 75));
 		btn.setMaximumSize(new Dimension(300, 75));
-		btn.addMouseListener(new MouseAdapter(){
+		btn.addMouseListener(new ButtonAdapter(btn){
 			public void mousePressed(MouseEvent e){
 				setContentPane(main);
+				button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_RELEASED, System.nanoTime(), 0, button.getX()+1, button.getY()+1, 1, true));
 				validate();
 			}
 		});
 		options.add(btn, "cell 0 3,alignx center,aligny center");
 		this.requestFocusInWindow();
 		setVisible(true);
+	}
+	
+	public TronFrame getInstance(){
+		return this;
 	}
 	
 	public void goToMain(){

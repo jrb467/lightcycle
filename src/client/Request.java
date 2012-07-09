@@ -66,17 +66,17 @@ public class Request {
 		}
 	}
 	
-	private Image getImage(String file){
+	private Image getImage(String name){
 		try{
-			return ImageIO.read(new File(file));
+			return ImageIO.read(new File(name));
 		}catch(Exception e){
 			return null;
 		}
 	}
 	
-	private Font getFont(String file){
+	private Font getFont(String name){
 		try{
-			Font temp = Font.createFont(Font.TRUETYPE_FONT, new File(file));
+			Font temp = Font.createFont(Font.TRUETYPE_FONT, new File(name));
 			temp = temp.deriveFont(16f);
 			return temp;
 		}catch (Exception e){

@@ -1,7 +1,6 @@
 package server;
 
 import java.awt.Container;
-import java.awt.EventQueue;
 import java.awt.event.*;
 import java.net.ServerSocket;
 import java.text.DateFormat;
@@ -34,17 +33,6 @@ public class ServerGUI extends JFrame implements EditableField, Networked, Windo
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ServerGUI frame = new ServerGUI();
-					frame.setVisible(true);
-					frame.inputDialogue.requestFocusInWindow();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 
 	/**
@@ -71,6 +59,9 @@ public class ServerGUI extends JFrame implements EditableField, Networked, Windo
 				inputDialogue.requestFocusInWindow();
 			}
 		});
+
+		setVisible(true);
+		inputDialogue.requestFocusInWindow();
 		
 		//create the input handler
 		handler = new InputHandler(this);
@@ -239,7 +230,6 @@ public class ServerGUI extends JFrame implements EditableField, Networked, Windo
 	//Networked method. Handles client input
 	public void handleInput(Object o, ConnectionData data){
 		if(o instanceof Packet){
-			writeInterupt("Packet Recieved: "+o.getClass().getCanonicalName());
 			packetHandler.handlePacket((Packet)o, data);
 		}else{
 			if(data.name == null){

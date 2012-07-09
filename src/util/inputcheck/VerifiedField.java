@@ -74,9 +74,9 @@ public class VerifiedField extends JTextField implements CaretListener{
 		g2.dispose();
 	}
 	
-	private Image getImage(String url){
+	private Image getImage(String name){
 		try {
-			return ImageIO.read(new File(url));
+			return ImageIO.read(new File(name));
 		} catch (IOException e) {
 			return null;
 		}

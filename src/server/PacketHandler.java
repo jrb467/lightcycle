@@ -30,7 +30,6 @@ public class PacketHandler {
 			if(!gui.isInGame(gui.getFromName(((Packet9RequestGame)p).getPlayer()))){
 				gui.getFromName(((Packet9RequestGame)p).getPlayer()).write(new Packet9RequestGame(c.name));
 			}
-		//TODO add in client confirmation
 			break;
 		case(10):
 			User u = UserManager.getUser(((Packet10Login)p).getUser(), ((Packet10Login)p).getPassword());

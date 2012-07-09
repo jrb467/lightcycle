@@ -5,8 +5,10 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,13 +18,18 @@ import packets.Packet18ConfirmRequest;
 public class RequestPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	public ArrayList<Request> requests = new ArrayList<Request>();
-	private Tron tron;
+	private TronFrame tron;
 	
-	public RequestPanel(Tron tron){
+	public RequestPanel(TronFrame tron){
 		this.tron = tron;
 		setLayout(new BorderLayout());
 		JLabel label = new JLabel("");
-		ImageIcon icon = new ImageIcon("misc/tron.jpg", "Tron logo");
+		ImageIcon icon;
+		try{
+			icon = new ImageIcon(ImageIO.read(new File("misc/tron.jpg")), "Tron logo");
+		}catch(Exception e){
+			icon = null;
+		}
 		label.setIcon(icon);
 		add(label, BorderLayout.CENTER);
 		addMouseListener(new MouseAdapter(){

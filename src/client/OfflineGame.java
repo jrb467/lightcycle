@@ -11,14 +11,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import util.timer.Action;
+import util.timer.ActionHandler;
+import util.timer.Timer;
 
-import util.network.*;
-import util.timer.*;
-import packets.*;
-
-public class Game extends JPanel implements ActionHandler, Networked, Runnable{
+public class OfflineGame extends JPanel implements ActionHandler, Runnable{
 	private static final long serialVersionUID = 1L;
 	
 	private BufferedImage buffer;
@@ -34,16 +32,12 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 	private byte[][] spaces;
 	private final byte BLOCK_SIZE = 5;
 	
-	private String p1Name;
-	private String p2Name;
-	
 	private byte p1X = 90;
 	private byte p1Y = 60;
 	private byte p1Direction = 3;
 	private byte p2X = 30;
 	private byte p2Y = 60;
 	private byte p2Direction = 1;
-	private boolean isP1;
 	
 	private int p1Wins = 0;
 	private int p2Wins = 0;
@@ -60,17 +54,13 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 	private boolean running = true;
 	private boolean inGame = false;
 	
-	public Game(TronFrame tron, boolean isP1, String p1, String p2){
+	public OfflineGame(TronFrame tron){
 		this.tron = tron;
-		this.isP1 = isP1;
-		p1Name = p1;
-		p2Name = p2;
 		addKeyListener(new KeyAdapter(){
 			public void keyPressed(KeyEvent e){
 				keyPress(e.getKeyCode());
 			}
 		});
-		tron.server.setNetworkHandler(this);
 		spaces = new byte[120][120];
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream(new File("misc/sf.ttf")));
@@ -92,99 +82,43 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 	
 	public void keyPress(int keycode){
 		if(keycode == KeyEvent.VK_UP){
-			if(isP1) {
-				if(p1Direction != 2){
-					p1Direction = 0;
-					tron.server.write(p1Direction);
-				}
-			}else {
-				if(p2Direction != 2){
-					p2Direction = 0;
-					tron.server.write(p2Direction);
-				}
+			if(p1Direction != 2){
+				p1Direction = 0;
 			}
 		}else if(keycode == KeyEvent.VK_RIGHT){
-			if(isP1) {
-				if(p1Direction != 3){
-					p1Direction = 1;
-					tron.server.write(p1Direction);
-				}
-			}else {
-				if(p2Direction != 3){
-					p2Direction = 1;
-					tron.server.write(p2Direction);
-				}
+			if(p1Direction != 3){
+				p1Direction = 1;
 			}
 		}else if(keycode == KeyEvent.VK_DOWN){
-			if(isP1) {
-				if(p1Direction != 0){
-					p1Direction = 2;
-					tron.server.write(p1Direction);
-				}
-			}else {
-				if(p2Direction != 0){
-					p2Direction = 2;
-					tron.server.write(p2Direction);
-				}
+			if(p1Direction != 0){
+				p1Direction = 2;
 			}
 		}else if(keycode == KeyEvent.VK_LEFT){
-			if(isP1) {
-				if(p1Direction != 1){
-					p1Direction = 3;
-					tron.server.write(p1Direction);
-				}
-			}else {
-				if(p2Direction != 1){
-					p2Direction = 3;
-					tron.server.write(p2Direction);
-				}
+			if(p1Direction != 1){
+				p1Direction = 3;
+			}
+		}else if(keycode == KeyEvent.VK_W){
+			if(p2Direction != 2){
+				p2Direction = 0;
+			}
+		}else if(keycode == KeyEvent.VK_D){
+			if(p2Direction != 3){
+				p2Direction = 1;
+			}
+		}else if(keycode == KeyEvent.VK_S){
+			if(p2Direction != 0){
+				p2Direction = 2;
+			}
+		}else if(keycode == KeyEvent.VK_A){
+			if(p2Direction != 1){
+				p2Direction = 3;
 			}
 		}else if(keycode == KeyEvent.VK_R && inGame == false){
-			tron.server.write(new Packet2Ready());
+			restart();
 		}else if(keycode == KeyEvent.VK_ESCAPE){
-			tron.server.write(new Packet8QuitGame());
-			tron.server.setNetworkHandler(tron);
 			tron.goToMain();
 			inGame = false;
 			running = false;
-		}
-	}
-
-	public void connectionSevered(ConnectionData connection) {
-		inGame = false;
-		JOptionPane.showMessageDialog(this, "Disconnected from server", "Network Error", JOptionPane.ERROR_MESSAGE);
-		System.exit(0);
-	}
-
-	@Override
-	public void handleInput(Object o, ConnectionData connection) {
-		if(o instanceof Packet){
-			switch(((Packet)o).getID()){
-			case 1:
-				p1Wins = ((Packet1Win)o).p1Wins;
-				p2Wins = ((Packet1Win)o).p2Wins;
-				winner = ((Packet1Win)o).winner;
-				inGame = false;
-				break;
-			case 6:
-				restart();
-				break;
-			case 7:
-				JOptionPane.showMessageDialog(this, "Partner Disconnected", "Disconnect", JOptionPane.ERROR_MESSAGE);
-				tron.server.setNetworkHandler(tron);
-				tron.goToMain();
-				running = false;
-				inGame = false;
-				break;
-			}
-		}else{
-			p1X = (byte)(((Integer)o & -33554432) >>> 25);
-			p1Y = (byte)(((Integer)o & 33292288) >>> 18);
-			p1Direction = (byte)(((Integer)o & 196608) >>> 16);
-			p2X = (byte)(((Integer)o & 65024) >>> 9);
-			p2Y = (byte)(((Integer)o & 508) >>> 2);
-			p2Direction = (byte)((Integer)o & 3);
-			update();
 		}
 	}
 	
@@ -222,6 +156,58 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 	}
 	
 	private void update(){
+		switch(p1Direction){
+		case 0:
+			p1Y--;
+			break;
+		case 1:
+			p1X++;
+			break;
+		case 2:
+			p1Y++;
+			break;
+		case 3: 
+			p1X--;
+			break;
+		}
+
+		switch(p2Direction){
+		case 0:
+			p2Y--;
+			break;
+		case 1:
+			p2X++;
+			break;
+		case 2:
+			p2Y++;
+			break;
+		case 3: 
+			p2X--;
+			break;
+		}
+		if(p1X == p2X && p1Y == p2Y){
+			inGame = false;
+			winner = "No one";
+			return;
+		}else if(p1X > 119 || p1X < 0 || p1Y > 119 || p1Y < 0 || spaces[p1X][p1Y] != 0){
+			if(!(p2X > 119 || p2X < 0 || p2Y > 119 || p2Y < 0 || spaces[p2X][p2Y] != 0)){
+				p2Wins++;
+				winner = "Player 2 (Blue)";
+			}else{
+				winner = "No one";
+			}
+			inGame = false;
+			return;
+		}else if(p2X > 119 || p2X < 0 || p2Y > 119 || p2Y < 0 || spaces[p2X][p2Y] != 0){
+			if(!(p1X > 119 || p1X < 0 || p1Y > 119 || p1Y < 0 || spaces[p1X][p1Y] != 0)){
+				p1Wins++;
+				winner = "Player 1 (Red)";
+			}else{
+				winner = "No one";
+			}
+			inGame = false;
+			return;
+		}
 		spaces[p1X][p1Y] = 1;
 		spaces[p2X][p2Y] = 2;
 	}
@@ -269,8 +255,8 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 				}
 				g.setFont(font);
 				g.setColor(Color.white);
-				g.drawString(p1Name+" (Red): "+p1Wins, 10,30);
-				g.drawString(p2Name+" (Blue): "+p2Wins, 10,45);
+				g.drawString("Player 1 (Red): "+p1Wins, 10,30);
+				g.drawString("Player 2 (Blue): "+p2Wins, 10,45);
 			}
 		}
 		if(buffer == null){
@@ -321,6 +307,9 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 		
 		while(running){
 			before = System.nanoTime();
+			if(inGame){
+				update();
+			}
 			draw();
 			paintGame();
 			after = System.nanoTime();
@@ -342,5 +331,4 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 		}
 		tron.server.setNetworkHandler(tron);
 	}
-
 }

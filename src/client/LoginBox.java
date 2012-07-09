@@ -1,7 +1,5 @@
 package client;
 
-import java.awt.EventQueue;
-
 import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
@@ -42,20 +40,6 @@ public class LoginBox extends JFrame implements Networked, WindowListener{
 	
 	private ConnectionData server;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					new LoginBox();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
@@ -238,7 +222,7 @@ public class LoginBox extends JFrame implements Networked, WindowListener{
 			switch(((Packet)o).getID()){
 			case 12:
 				if(((Packet12LoginSucess)o).sucessful()){
-					new Tron(server, getInstance());
+					new TronFrame(server, getInstance());
 					close();
 					dispose();
 				}else{
