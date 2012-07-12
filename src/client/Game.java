@@ -10,6 +10,9 @@ import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -18,7 +21,7 @@ import util.network.*;
 import util.timer.*;
 import packets.*;
 
-public class Game extends JPanel implements ActionHandler, Networked, Runnable{
+public class Game extends JPanel implements ActionHandler, Networked, PrimitiveNetworked, Runnable{
 	private static final long serialVersionUID = 1L;
 	
 	private BufferedImage buffer;
@@ -56,6 +59,8 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 	private TextLayout temp;
 	
 	private TronFrame tron;
+	
+	private PrimitiveConnectionData primServer;
 	
 	private boolean running = true;
 	private boolean inGame = false;
@@ -95,48 +100,48 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 			if(isP1) {
 				if(p1Direction != 2){
 					p1Direction = 0;
-					tron.server.write(p1Direction);
+					primServer.write(p1Direction);
 				}
 			}else {
 				if(p2Direction != 2){
 					p2Direction = 0;
-					tron.server.write(p2Direction);
+					primServer.write(p2Direction);
 				}
 			}
 		}else if(keycode == KeyEvent.VK_RIGHT){
 			if(isP1) {
 				if(p1Direction != 3){
 					p1Direction = 1;
-					tron.server.write(p1Direction);
+					primServer.write(p1Direction);
 				}
 			}else {
 				if(p2Direction != 3){
 					p2Direction = 1;
-					tron.server.write(p2Direction);
+					primServer.write(p2Direction);
 				}
 			}
 		}else if(keycode == KeyEvent.VK_DOWN){
 			if(isP1) {
 				if(p1Direction != 0){
 					p1Direction = 2;
-					tron.server.write(p1Direction);
+					primServer.write(p1Direction);
 				}
 			}else {
 				if(p2Direction != 0){
 					p2Direction = 2;
-					tron.server.write(p2Direction);
+					primServer.write(p2Direction);
 				}
 			}
 		}else if(keycode == KeyEvent.VK_LEFT){
 			if(isP1) {
 				if(p1Direction != 1){
 					p1Direction = 3;
-					tron.server.write(p1Direction);
+					primServer.write(p1Direction);
 				}
 			}else {
 				if(p2Direction != 1){
 					p2Direction = 3;
-					tron.server.write(p2Direction);
+					primServer.write(p2Direction);
 				}
 			}
 		}else if(keycode == KeyEvent.VK_R && inGame == false){
@@ -177,14 +182,6 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 				inGame = false;
 				break;
 			}
-		}else{
-			p1X = (byte)(((Integer)o & -33554432) >>> 25);
-			p1Y = (byte)(((Integer)o & 33292288) >>> 18);
-			p1Direction = (byte)(((Integer)o & 196608) >>> 16);
-			p2X = (byte)(((Integer)o & 65024) >>> 9);
-			p2Y = (byte)(((Integer)o & 508) >>> 2);
-			p2Direction = (byte)((Integer)o & 3);
-			update();
 		}
 	}
 	
@@ -319,6 +316,15 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 		sleepTime = (long)1000L/fps;
 		int period = 1000000000/fps;
 		
+		Socket socket = new Socket();
+		try{
+			socket.connect(new InetSocketAddress("66.228.43.172", 32043), 1000);
+		}catch(IOException e){
+			JOptionPane.showMessageDialog(this, "Disconnected from server", "Network Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
+		}
+		primServer = new PrimitiveConnectionData(this, socket);
+		
 		while(running){
 			before = System.nanoTime();
 			draw();
@@ -341,6 +347,24 @@ public class Game extends JPanel implements ActionHandler, Networked, Runnable{
 			}
 		}
 		tron.server.setNetworkHandler(tron);
+	}
+
+	@Override
+	public void connectionSevered(PrimitiveConnectionData connection) {
+		inGame = false;
+		JOptionPane.showMessageDialog(this, "Disconnected from server", "Network Error", JOptionPane.ERROR_MESSAGE);
+		System.exit(0);
+	}
+
+	@Override
+	public void handleInput(int i, PrimitiveConnectionData connection) {
+		p1X = (byte)((i & -33554432) >>> 25);
+		p1Y = (byte)((i & 33292288) >>> 18);
+		p1Direction = (byte)((i & 196608) >>> 16);
+		p2X = (byte)((i & 65024) >>> 9);
+		p2Y = (byte)((i & 508) >>> 2);
+		p2Direction = (byte)(i & 3);
+		update();
 	}
 
 }

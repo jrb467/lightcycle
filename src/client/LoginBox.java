@@ -53,7 +53,7 @@ public class LoginBox extends JFrame implements Networked, WindowListener{
 	public LoginBox() {
 		Socket s = new Socket();
 		try{
-			s.connect(new InetSocketAddress("69.207.156.48", 32042), 1000);
+			s.connect(new InetSocketAddress("66.228.43.172", 32042), 1000);
 		}catch (IOException e){
 			JOptionPane.showMessageDialog(this, "Disconnected from server", "Network Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(0);

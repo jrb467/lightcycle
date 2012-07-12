@@ -6,15 +6,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-
-public class ConnectionData {
+public class PrimitiveConnectionData {
 	private Socket socket;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
-	private Networked network;
+	private PrimitiveNetworked network;
 	public String name;
 	
-	public ConnectionData(Networked network, Socket socket){
+	public PrimitiveConnectionData(PrimitiveNetworked network, Socket socket){
 		this.socket = socket;
 		this.network = network;
 		try{
@@ -24,8 +23,8 @@ public class ConnectionData {
 				public void run(){
 					while(true){
 						try{
-							Object o = in.readObject();
-							getNetwork().handleInput(o, getInstance());
+							int i = in.read();
+							getNetwork().handleInput(i, getInstance());
 						}catch (SocketException e) {
 							getNetwork().connectionSevered(getInstance());
 			                break;
@@ -52,11 +51,11 @@ public class ConnectionData {
 		return socket.getLocalPort();
 	}
 	
-	public ConnectionData getInstance(){
+	public PrimitiveConnectionData getInstance(){
 		return this;
 	}
 	
-	public Networked getNetwork(){
+	public PrimitiveNetworked getNetwork(){
 		return network;
 	}
 	
@@ -68,16 +67,9 @@ public class ConnectionData {
 		return socket.isClosed();
 	}
 	
-	public synchronized void write(Object o){
-		try{
-			out.writeObject(o);
-			out.flush();
-		}catch (Exception e){}
-	}
-	
 	public synchronized void write(int i){
 		try{
-			out.writeObject(new Integer(i));
+			out.write(i);
 			out.flush();
 		}catch (Exception e){
 			e.printStackTrace();
@@ -86,7 +78,7 @@ public class ConnectionData {
 	
 	public synchronized void write(byte b){
 		try{
-			out.writeObject(new Byte(b));
+			out.write(b);
 			out.flush();
 		}catch(Exception e){
 			e.printStackTrace();
@@ -107,8 +99,7 @@ public class ConnectionData {
         }
 	}
 	
-	public void setNetworkHandler(Networked network){
+	public void setNetworkHandler(PrimitiveNetworked network){
 		this.network = network;
 	}
-
 }

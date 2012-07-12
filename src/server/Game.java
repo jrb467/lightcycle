@@ -1,10 +1,17 @@
 package server;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import packets.*;
 import util.network.*;
 import util.timer.*;
 
-public class Game extends Thread implements ActionHandler, Networked{
+public class Game extends Thread implements ActionHandler, Networked, PrimitiveNetworked{
+	public PrimitiveConnectionData p1Prim;
+	public PrimitiveConnectionData p2Prim;
 	public ConnectionData p1;
 	public ConnectionData p2;
 	private int playerInfo;
@@ -41,6 +48,34 @@ public class Game extends Thread implements ActionHandler, Networked{
 		spaces = new byte[120][120];
 		running = true;
 		inGame = false;
+		
+		try{
+			Socket s;
+			ServerSocket server = new ServerSocket();
+			server.bind(new InetSocketAddress(p1.address(), 32043));
+			s = server.accept();
+			p1Prim = new PrimitiveConnectionData(this, s);
+		}catch(IOException e){
+			inGame = false;
+			running = false;
+			p2.write(new Packet7PartnerDisconnect());
+			p2.setNetworkHandler(gui);
+			gui.connectionSevered(p1);
+		}
+		
+		try{
+			Socket s;
+			ServerSocket server = new ServerSocket();
+			server.bind(new InetSocketAddress(p1.address(), 32043));
+			s = server.accept();
+			p2Prim = new PrimitiveConnectionData(this, s);
+		}catch(IOException e){
+			inGame = false;
+			running = false;
+			p1.write(new Packet7PartnerDisconnect());
+			p1.setNetworkHandler(gui);
+			gui.connectionSevered(p2);
+		}
 		start();
 	}
 	
@@ -174,8 +209,8 @@ public class Game extends Thread implements ActionHandler, Networked{
 		setBit(getP1X(), getP1Y(), (byte)1);
 		setBit(getP2X(), getP2Y(), (byte)1);
 		
-		p1.write(playerInfo);
-		p2.write(playerInfo);
+		p1Prim.write(playerInfo);
+		p2Prim.write(playerInfo);
 	}
 	
 	private void setP1X(int x){
@@ -254,6 +289,7 @@ public class Game extends Thread implements ActionHandler, Networked{
 	@Override
 	public void connectionSevered(ConnectionData connection) {
 		inGame = false;
+		running = false;
 		if(connection.equals(p1)){
 			p2.write(new Packet7PartnerDisconnect());
 			p2.setNetworkHandler(gui);
@@ -286,12 +322,6 @@ public class Game extends Thread implements ActionHandler, Networked{
 				running = false;
 				inGame = false;
 				break;
-			}
-		}else{
-			if(connection.equals(p1)){
-				setP1Dir((Byte)o);
-			}else{
-				setP2Dir((Byte)o);
 			}
 		}
 		
@@ -333,5 +363,29 @@ public class Game extends Thread implements ActionHandler, Networked{
 	public void colorSpaces(){
 		setBit(90, 60, (byte)1);
 		setBit(30,60,(byte)1);
+	}
+
+	@Override
+	public void connectionSevered(PrimitiveConnectionData connection) {
+		inGame = false;
+		running = false;
+		if(connection.equals(p1Prim)){
+			p2.write(new Packet7PartnerDisconnect());
+			p2.setNetworkHandler(gui);
+			gui.connectionSevered(p1);
+		}else{
+			p1.write(new Packet7PartnerDisconnect());
+			p1.setNetworkHandler(gui);
+			gui.connectionSevered(p2);
+		}
+	}
+
+	@Override
+	public void handleInput(int i, PrimitiveConnectionData connection) {
+		if(connection.equals(p1Prim)){
+			setP1Dir(i);
+		}else{
+			setP2Dir(i);
+		}
 	}
 }
