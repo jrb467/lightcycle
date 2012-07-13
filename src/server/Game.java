@@ -54,6 +54,7 @@ public class Game extends Thread implements ActionHandler, Networked, PrimitiveN
 			ServerSocket server = new ServerSocket();
 			server.bind(new InetSocketAddress(p1.address(), 32043));
 			s = server.accept();
+			server.close();
 			p1Prim = new PrimitiveConnectionData(this, s);
 		}catch(IOException e){
 			inGame = false;
@@ -68,6 +69,7 @@ public class Game extends Thread implements ActionHandler, Networked, PrimitiveN
 			ServerSocket server = new ServerSocket();
 			server.bind(new InetSocketAddress(p1.address(), 32043));
 			s = server.accept();
+			server.close();
 			p2Prim = new PrimitiveConnectionData(this, s);
 		}catch(IOException e){
 			inGame = false;

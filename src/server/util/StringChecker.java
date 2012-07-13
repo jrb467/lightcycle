@@ -11,6 +11,7 @@ public class StringChecker {
 		while(scan.hasNext()){
 			returnValue.add(scan.next());
 		}
+		scan.close();
 		return returnValue;
 	}
 	

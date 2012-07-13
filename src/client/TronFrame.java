@@ -24,7 +24,7 @@ public class TronFrame extends JFrame implements Networked{
 	private JPanel main;
 	private JPanel connect;
 	private JPanel options;
-	private JList clientList;
+	private JList<String> clientList;
 	private JPanel stats;
 	
 	private JLabel name;
@@ -145,13 +145,13 @@ public class TronFrame extends JFrame implements Networked{
 					public void run(){
 						while(getContentPane().equals(connect)){
 							for(String s: players){
-								if(!((DefaultListModel)clientList.getModel()).contains(s)){
-									((DefaultListModel)clientList.getModel()).addElement(s);
+								if(!((DefaultListModel<String>)clientList.getModel()).contains(s)){
+									((DefaultListModel<String>)clientList.getModel()).addElement(s);
 								}
 							}
-							for(int i = 0; i < ((DefaultListModel)clientList.getModel()).size(); i++){
-								if(!players.contains(((DefaultListModel)clientList.getModel()).get(i))){
-									((DefaultListModel)clientList.getModel()).remove(i);
+							for(int i = 0; i < ((DefaultListModel<String>)clientList.getModel()).size(); i++){
+								if(!players.contains(((DefaultListModel<String>)clientList.getModel()).get(i))){
+									((DefaultListModel<String>)clientList.getModel()).remove(i);
 								}
 							}
 							server.write(new Packet5Request());
@@ -159,7 +159,7 @@ public class TronFrame extends JFrame implements Networked{
 								Thread.sleep(300);
 							}catch(Exception e){}
 						}
-						((DefaultListModel)clientList.getModel()).clear();
+						((DefaultListModel<String>)clientList.getModel()).clear();
 						players.clear();
 					}
 				};
@@ -227,11 +227,11 @@ public class TronFrame extends JFrame implements Networked{
 		scrollPane.setMaximumSize(new Dimension(350, 240));
 		connect.add(scrollPane, "cell 0 1,alignx center,aligny center");
 		
-		clientList = new JList();
+		clientList = new JList<String>();
 		clientList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		clientList.setFocusable(false);
 		scrollPane.setViewportView(clientList);
-		clientList.setModel(new DefaultListModel());
+		clientList.setModel(new DefaultListModel<String>());
 		clientList.setMaximumSize(new Dimension(200, 250));
 		clientList.setFont(new Font("Lucida Grande", Font.PLAIN, 16));
 		clientList.setBackground(Color.LIGHT_GRAY);
