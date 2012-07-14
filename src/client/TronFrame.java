@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.border.BevelBorder;
@@ -80,14 +81,27 @@ public class TronFrame extends JFrame implements Networked{
 		
 		//Set up logo for all three
 		
-		JLabel icon = new JLabel();
-		main.add(new RequestPanel(this), "cell 0 0,alignx center,aligny center");
-		
-		connect.add(new RequestPanel(this), "cell 0 0,alignx center,aligny center");
-		
-		options.add(new RequestPanel(this), "cell 0 0,alignx center, aligny center");
-		
-		stats.add(new RequestPanel(this), "cell 0 0, alignx center, aligny center");
+		JLabel icon = null;
+		try{
+			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
+		}catch(Exception e){}
+
+		main.add(icon, "cell 0 0,alignx center,aligny center");
+
+		try{
+			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
+		}catch(Exception e){}
+		connect.add(icon, "cell 0 0,alignx center,aligny center");
+
+		try{
+			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
+		}catch(Exception e){}
+		options.add(icon, "cell 0 0,alignx center, aligny center");
+
+		try{
+			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
+		}catch(Exception e){}
+		stats.add(icon, "cell 0 0, alignx center, aligny center");
 		
 		name = new JLabel ("");
 		name.setFont(new Font("SansSerif", Font.PLAIN, 50));
