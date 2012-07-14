@@ -167,10 +167,7 @@ public class CreateAccountDialogue extends JDialog implements WindowFocusListene
 	}
 
 	@Override
-	public void windowGainedFocus(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowGainedFocus(WindowEvent arg0) {}
 
 	@Override
 	public void windowLostFocus(WindowEvent arg0) {

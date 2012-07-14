@@ -21,7 +21,7 @@ public class Request {
 	private FontRenderContext context;
 	private Font font = getFont("misc/sf.ttf");
 	private Font playerFont = font.deriveFont(20f);
-	private int hoverCount = 0;
+	private int hoverCount = 10;
 	private RequestPanel panel;
 	
 	public Request(RequestPanel panel, String user){

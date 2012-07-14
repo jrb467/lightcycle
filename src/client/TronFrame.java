@@ -79,6 +79,8 @@ public class TronFrame extends JFrame implements Networked{
 		stats.setLayout(new MigLayout("", "[300px:300px:300px,left][300px:300px:300px,right]", "[200px:200px:200px][100px:100px:100px][25px:25px:25px][75px:75px:75px][25px:25px:25px][75px:75px:75px][60px:60px:60px]"));
 		
 		//Set up logo for all three
+		
+		JLabel icon = new JLabel();
 		main.add(new RequestPanel(this), "cell 0 0,alignx center,aligny center");
 		
 		connect.add(new RequestPanel(this), "cell 0 0,alignx center,aligny center");
@@ -332,6 +334,7 @@ public class TronFrame extends JFrame implements Networked{
 						((RequestPanel)c).requests.add(new Request((RequestPanel)c, ((Packet9RequestGame)o).getPlayer()));
 					}
 				}
+				//TODO go back to icon logo and simply do an overlay instead
 				break;
 			case(16):
 				Game g = new Game(this, ((Packet16NewGame)o).isP1(), ((Packet16NewGame)o).getP1(), ((Packet16NewGame)o).getP2());

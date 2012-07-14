@@ -21,7 +21,7 @@ public class Game extends Thread implements ActionHandler, Networked, PrimitiveN
 	public boolean p2Ready;
 	private Timer delay;
 	
-	private ServerGUI gui;
+	private ServerDaemon gui;
 	
 	private byte[][] spaces;
 	private boolean running;
@@ -31,7 +31,7 @@ public class Game extends Thread implements ActionHandler, Networked, PrimitiveN
 	
 	private final short ups = 30;
 
-	public Game(ServerGUI gui, ConnectionData p1, ConnectionData p2){
+	public Game(ServerDaemon gui, ConnectionData p1, ConnectionData p2){
 		this.p1 = p1;
 		this.p2 = p2;
 		p1Wins = 0;
@@ -184,8 +184,8 @@ public class Game extends Thread implements ActionHandler, Networked, PrimitiveN
 				p2Wins++;
 				p1.write(new Packet1Win(p2.name+" (Blue)", p1Wins, p2Wins));
 				p2.write(new Packet1Win(p2.name+" (Blue)", p1Wins, p2Wins));
-				UserManager.getUser(p1.name).gamePlayed();
-				UserManager.getUser(p2.name).gamePlayed();
+				UserManager.getUser(p1.name).gamePlayed(UserManager.getUser(p2.name).getEffectiveRating());
+				UserManager.getUser(p2.name).gamePlayed(UserManager.getUser(p1.name).getEffectiveRating());
 				UserManager.getUser(p2.name).gameWon();
 			}else{
 				p1.write(new Packet1Win("No one", p1Wins, p2Wins));
@@ -198,9 +198,9 @@ public class Game extends Thread implements ActionHandler, Networked, PrimitiveN
 				p1Wins++;
 				p1.write(new Packet1Win(p1.name+" (Red)", p1Wins, p2Wins));
 				p2.write(new Packet1Win(p1.name+" (Red)", p1Wins, p2Wins));
-				UserManager.getUser(p1.name).gamePlayed();
+				UserManager.getUser(p1.name).gamePlayed(UserManager.getUser(p2.name).getEffectiveRating());
 				UserManager.getUser(p1.name).gameWon();
-				UserManager.getUser(p2.name).gamePlayed();
+				UserManager.getUser(p2.name).gamePlayed(UserManager.getUser(p1.name).getEffectiveRating());
 			}else{
 				p1.write(new Packet1Win("No one", p1Wins, p2Wins));
 				p2.write(new Packet1Win("No one", p1Wins, p2Wins));

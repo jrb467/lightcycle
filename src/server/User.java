@@ -9,7 +9,7 @@ public class User implements Serializable{
 	private int totalGamesWon;
 	private int totalGamesPlayed;
 	private float effectiveRating;
-	//TODO add in more stats maybe?
+	private float averageOppRating;
 	
 	public User(String name, String pword){
 		this.name = name;
@@ -52,8 +52,10 @@ public class User implements Serializable{
 		totalGamesWon++;
 	}
 	
-	public void gamePlayed(){
+	public void gamePlayed(float otherRating){
 		totalGamesPlayed++;
+		averageOppRating = ((totalGamesPlayed-1)*averageOppRating + otherRating)/totalGamesPlayed;
+		effectiveRating = getWLRatio()*(totalGamesPlayed-1)/totalGamesPlayed*averageOppRating;
 	}
 	
 	public void setPassword(String newPword){
