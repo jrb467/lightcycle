@@ -2,6 +2,7 @@ package client;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import packets.Packet18ConfirmRequest;
@@ -9,22 +10,28 @@ import packets.Packet18ConfirmRequest;
 public class RequestHandler {
 	private static ArrayList<Request> requests = new ArrayList<Request>();
 	private static TronFrame tron;
+	private static BufferedImage buffer;
+	private static Graphics bufGraphics;
 	
 	public static void setFrame(TronFrame f){
 		tron = f;
+		buffer = new BufferedImage(210, 110, BufferedImage.TYPE_INT_ARGB);
+		bufGraphics = buffer.getGraphics();
 	}
 	
 	public static void start(){
 		Thread handleThread = new Thread(){
 			public void run(){
 				while(true){
-					Point p = tron.getMousePosition();
-					if(p != null && p.x > 350 && p.x < 550 && p.y > 20 && p.y < 120){
-						if(requests.size() > 0) requests.get(0).update(true);
-					}else{
-						if(requests.size() > 0) requests.get(0).update(false);
+					if(tron != null){
+						Point p = tron.getMousePosition();
+						if(p != null && p.x > 350 && p.x < 550 && p.y > 47 && p.y < 147){
+							if(requests.size() > 0) requests.get(0).update(true);
+						}else{
+							if(requests.size() > 0) requests.get(0).update(false);
+						}
+						paint(tron.getGraphics());
 					}
-					tron.repaint();
 					try{
 						Thread.sleep(30);
 					}catch (Exception e){}
@@ -34,10 +41,21 @@ public class RequestHandler {
 		handleThread.start();
 	}
 	
-	public static void paint(Graphics g){
+	public static void mousePress(int x, int y){
 		if(requests.size() > 0){
-			requests.get(0).paint(g.create(350, 20, 210, 110));
+			requests.get(0).mousePress(x-350, y-47);
 		}
+	}
+	
+	public static void paint(Graphics g){
+		if(requests.size() > 0 && g != null){
+			requests.get(0).paint(bufGraphics);
+			g.drawImage(buffer, 350, 47, 210, 110, null);
+		}
+	}
+	
+	public static void add(Request q){
+		requests.add(q);
 	}
 	
 	public static void accept(){

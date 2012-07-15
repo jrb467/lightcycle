@@ -22,10 +22,8 @@ public class Request {
 	private Font font = getFont("misc/sf.ttf");
 	private Font playerFont = font.deriveFont(20f);
 	private int hoverCount = 10;
-	private RequestPanel panel;
 	
-	public Request(RequestPanel panel, String user){
-		this.panel = panel;
+	public Request(String user){
 		this.user = user;
 	}
 
@@ -87,9 +85,9 @@ public class Request {
 	
 	public void mousePress(int x, int y){
 		if(new Rectangle(10, 60, 80, 30).contains(x, y)){
-			panel.accept();
+			RequestHandler.accept();
 		}else if(new Rectangle(110, 60, 80, 30).contains(x, y)){
-			panel.decline();
+			RequestHandler.decline();
 		}
 	}
 	

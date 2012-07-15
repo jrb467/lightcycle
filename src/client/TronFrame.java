@@ -5,12 +5,10 @@ import javax.swing.border.EmptyBorder;
 import net.miginfocom.swing.MigLayout;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.border.BevelBorder;
@@ -46,6 +44,8 @@ public class TronFrame extends JFrame implements Networked{
 		
 		this.server = server;
 		server.setNetworkHandler(this);
+		RequestHandler.setFrame(this);
+		RequestHandler.start();
 		
 		init(b);
 	}
@@ -62,7 +62,6 @@ public class TronFrame extends JFrame implements Networked{
 		main.setBackground(Color.BLACK);
 		main.setBorder(new EmptyBorder(0,0,0,0));
 		main.setLayout(new MigLayout("", "[grow]", "[200px:200px:200px][90px:90px:90px][90px:90px:90px][90px:90px:90px][90px:90px:90px]"));
-		setContentPane(main);
 		
 		connect = new JPanel();
 		connect.setBackground(Color.BLACK);
@@ -76,32 +75,24 @@ public class TronFrame extends JFrame implements Networked{
 		
 		stats = new JPanel();
 		stats.setBackground(Color.BLACK);
-		stats.setBorder(new EmptyBorder(0,0,0,0));
-		stats.setLayout(new MigLayout("", "[300px:300px:300px,left][300px:300px:300px,right]", "[200px:200px:200px][100px:100px:100px][25px:25px:25px][75px:75px:75px][25px:25px:25px][75px:75px:75px][60px:60px:60px]"));
+		stats.setBorder(new EmptyBorder(0, 0, 0, 0));
+		stats.setLayout(new MigLayout("", "[310px:310px:310px][310px:310px:310px]", "[200px:200px:200px][90px:90px:90px][25px:25px:25px][75px:75.00px:75px][25px:25px:25px][75px:75px:75px][60px:60px:60px]"));
+
 		
 		//Set up logo for all three
 		
 		JLabel icon = null;
-		try{
-			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
-		}catch(Exception e){}
-
+		icon = new JLabel(new ImageIcon("misc/tron.jpg"));
 		main.add(icon, "cell 0 0,alignx center,aligny center");
 
-		try{
-			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
-		}catch(Exception e){}
+		icon = new JLabel(new ImageIcon("misc/tron.jpg"));
 		connect.add(icon, "cell 0 0,alignx center,aligny center");
 
-		try{
-			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
-		}catch(Exception e){}
+		icon = new JLabel(new ImageIcon("misc/tron.jpg"));
 		options.add(icon, "cell 0 0,alignx center, aligny center");
 
-		try{
-			icon = new JLabel(new ImageIcon(new URL("misc/tron.jpg")));
-		}catch(Exception e){}
-		stats.add(icon, "cell 0 0, alignx center, aligny center");
+		icon = new JLabel(new ImageIcon("misc/tron.jpg"));
+		stats.add(icon, "cell 0 0 2 1,alignx center,aligny center");
 		
 		name = new JLabel ("");
 		name.setFont(new Font("SansSerif", Font.PLAIN, 50));
@@ -317,7 +308,15 @@ public class TronFrame extends JFrame implements Networked{
 				validate();
 			}
 		});
+		this.addMouseListener(new MouseAdapter(){
+			public void mousePressed(MouseEvent e){
+				if(e.getX() > 350 && e.getX() < 550 && e.getY() > 20 && e.getY() < 120){
+					RequestHandler.mousePress(e.getX(), e.getY());
+				}
+			}
+		});
 		options.add(btn, "cell 0 3,alignx center,aligny center");
+		setContentPane(main);
 		this.requestFocusInWindow();
 		setVisible(true);
 	}
@@ -343,12 +342,7 @@ public class TronFrame extends JFrame implements Networked{
 				players = ((Packet3Clients)o).getClients();
 				break;
 			case(9):
-				for(Component c: getContentPane().getComponents()){
-					if(c instanceof RequestPanel){
-						((RequestPanel)c).requests.add(new Request((RequestPanel)c, ((Packet9RequestGame)o).getPlayer()));
-					}
-				}
-				//TODO go back to icon logo and simply do an overlay instead
+				RequestHandler.add(new Request(((Packet9RequestGame)o).getPlayer()));
 				break;
 			case(16):
 				Game g = new Game(this, ((Packet16NewGame)o).isP1(), ((Packet16NewGame)o).getP1(), ((Packet16NewGame)o).getP2());
